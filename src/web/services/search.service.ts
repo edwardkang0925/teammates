@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { forkJoin, Observable, of } from 'rxjs';
 import { flatMap, map, mergeMap } from 'rxjs/operators';
-import { StudentListSectionData } from '../app/components/student-list/student-list-section-data';
+import { StudentListRowModel } from '../app/components/student-list/student-list.component';
 import {
   SearchCommentsTable,
 } from '../app/pages-instructor/instructor-search-page/comment-result-table/comment-result-table.component';
 import {
-  SearchStudentsTable,
+  SearchStudentsListRowTable,
 } from '../app/pages-instructor/instructor-search-page/student-result-table/student-result-table.component';
 import { ResourceEndpoints } from '../types/api-endpoints';
 import {
@@ -47,13 +47,13 @@ export class SearchService {
   searchInstructor(searchKey: string): Observable<InstructorSearchResult> {
     return this.searchStudents(searchKey).pipe(
       map((studentsRes: Students) => this.getCoursesWithSections(studentsRes)),
-      mergeMap((coursesWithSections: SearchStudentsTable[]) =>
+      mergeMap((coursesWithSections: SearchStudentsListRowTable[]) =>
         forkJoin([
           of(coursesWithSections),
           this.getPrivileges(coursesWithSections),
         ]),
       ),
-      map((res: [SearchStudentsTable[], InstructorPrivilege[]]) => this.combinePrivileges(res)),
+      map((res: [SearchStudentsListRowTable[], InstructorPrivilege[]]) => this.combinePrivileges(res)),
     );
   }
 
@@ -117,37 +117,25 @@ export class SearchService {
     return this.httpRequestService.get(ResourceEndpoints.SEARCH_COMMENTS, paramMap);
   }
 
-  getCoursesWithSections(studentsRes: Students): SearchStudentsTable[] {
+  getCoursesWithSections(studentsRes: Students): SearchStudentsListRowTable[] {
     const { students }: { students: Student[] } = studentsRes;
 
     const distinctCourses: string[] = Array.from(
       new Set(students.map((s: Student) => s.courseId)),
     );
-    const coursesWithSections: SearchStudentsTable[] = distinctCourses.map(
+    const coursesWithSections: SearchStudentsListRowTable[] = distinctCourses.map(
       (courseId: string) => ({
         courseId,
-        sections: Array.from(
-          new Set(
-            students
-              .filter((s: Student) => s.courseId === courseId)
-              .map((s: Student) => s.sectionName),
-          ),
-        ).map((sectionName: string) => ({
-          sectionName,
-          isAllowedToViewStudentInSection: false,
-          isAllowedToModifyStudent: false,
-          students: students
-            .filter(
-              (s: Student) =>
-                s.courseId === courseId && s.sectionName === sectionName,
-            )
-            .map((s: Student) => ({
-              name: s.name,
-              email: s.email,
-              status: s.joinState,
-              team: s.teamName,
-            })),
-        })),
+        students: students
+          .filter(
+            (s: Student) =>
+              s.courseId === courseId,
+          )
+          .map((student: Student) => ({
+            student,
+            isAllowedToViewStudentInSection: false,
+            isAllowedToModifyStudent: false,
+          })),
       }),
     );
 
@@ -157,7 +145,7 @@ export class SearchService {
   private getSearchCommentsTable(searchResults: CommentSearchResults): InstructorSearchResult {
     const searchResult: CommentSearchResult[] = searchResults.searchResults;
     return {
-      searchStudentsTables: [],
+      searchStudentsListRowTables: [],
       searchCommentsTables: searchResult.map((res: CommentSearchResult) => ({
         feedbackSession: res.feedbackSession,
         questions: res.questions,
@@ -166,17 +154,17 @@ export class SearchService {
   }
 
   getPrivileges(
-    coursesWithSections: SearchStudentsTable[],
+    coursesWithSections: SearchStudentsListRowTable[],
   ): Observable<InstructorPrivilege[]> {
     if (coursesWithSections.length === 0) {
       return of([]);
     }
     return forkJoin(
-      coursesWithSections.map((course: SearchStudentsTable) => {
-        return course.sections.map((section: StudentListSectionData) => {
+      coursesWithSections.map((course: SearchStudentsListRowTable) => {
+        return course.students.map((studentModel: StudentListRowModel) => {
           return this.instructorService.loadInstructorPrivilege({
             courseId: course.courseId,
-            sectionName: section.sectionName,
+            sectionName: studentModel.student.sectionName,
           });
         });
       }).reduce(
@@ -188,7 +176,7 @@ export class SearchService {
   }
 
   combinePrivileges(
-    [coursesWithSections, privileges]: [SearchStudentsTable[], InstructorPrivilege[]],
+    [coursesWithSections, privileges]: [SearchStudentsListRowTable[], InstructorPrivilege[]],
   ): InstructorSearchResult {
     /**
      * Pop the privilege objects one at a time and attach them to the results. This is possible
@@ -196,17 +184,17 @@ export class SearchService {
      * same order the requests were made.
      */
     for (const course of coursesWithSections) {
-      for (const section of course.sections) {
+      for (const studentRowModel of course.students) {
         const sectionPrivileges: InstructorPrivilege | undefined = privileges.shift();
         if (!sectionPrivileges) { continue; }
 
-        section.isAllowedToViewStudentInSection = sectionPrivileges.canViewStudentInSections;
-        section.isAllowedToModifyStudent = sectionPrivileges.canModifyStudent;
+        studentRowModel.isAllowedToViewStudentInSection = sectionPrivileges.canViewStudentInSections;
+        studentRowModel.isAllowedToModifyStudent = sectionPrivileges.canModifyStudent;
       }
     }
 
     return {
-      searchStudentsTables: coursesWithSections,
+      searchStudentsListRowTables: coursesWithSections,
       searchCommentsTables: [],
     };
   }
@@ -469,7 +457,7 @@ export class SearchService {
  * The typings for the response object returned by the instructor search service.
  */
 export interface InstructorSearchResult {
-  searchStudentsTables: SearchStudentsTable[];
+  searchStudentsListRowTables: SearchStudentsListRowTable[];
   searchCommentsTables: SearchCommentsTable[];
 }
 

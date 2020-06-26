@@ -4,7 +4,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of } from 'rxjs';
 import { StudentListSectionData } from '../app/components/student-list/student-list-section-data';
 import {
-  SearchStudentsTable,
+  SearchStudentsTable, SearchStudentsListRowTable,
 } from '../app/pages-instructor/instructor-search-page/student-result-table/student-result-table.component';
 import { ResourceEndpoints } from '../types/api-endpoints';
 import {
@@ -64,7 +64,7 @@ describe('SearchService', () => {
       },
     ],
   };
-  let coursesWithSections: SearchStudentsTable[];
+  let coursesWithSections: SearchStudentsListRowTable[];
 
   const mockStudent: Student = {
     email: 'alice.b.tmms@gmail.tmt',
