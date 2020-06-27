@@ -48,10 +48,10 @@ export class SearchService {
     return this.searchStudents(searchKey).pipe(
       map((studentsRes: Students) => this.getCoursesWithSections(studentsRes)),
       mergeMap((coursesWithSections: SearchStudentsListRowTable[]) =>
-          forkJoin([
-            of(coursesWithSections),
-            this.getPrivileges(coursesWithSections),
-          ]),
+        forkJoin([
+          of(coursesWithSections),
+          this.getPrivileges(coursesWithSections),
+        ]),
       ),
       map((res: [SearchStudentsListRowTable[], InstructorPrivilege[]]) => this.combinePrivileges(res)),
     );
