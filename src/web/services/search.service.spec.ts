@@ -204,7 +204,7 @@ describe('SearchService', () => {
     expect(
       coursesWithSections
         .filter((t: SearchStudentsListRowTable) => t.courseId === students[0].courseId)[0]
-        .students.filter((s: StudentListRowModel) => s.student.sectionName === students[0].sectionName)[0]
+        .students.filter((s: StudentListRowModel) => s.student.sectionName === students[0].sectionName)
         .length,
     ).toEqual(
       students.filter((s: Student) => s.sectionName === students[0].sectionName).length,
