@@ -188,7 +188,7 @@ describe('SearchService', () => {
 
     // Number of sections in a course should match
     expect(
-      coursesWithSections.filter((t: SearchStudentsListRowTable) => t.courseId === students[0].courseId)
+      coursesWithSections.filter((t: SearchStudentsListRowTable) => t.courseId === students[0].courseId)[0]
         .students.length,
     ).toEqual(
       Array.from(
