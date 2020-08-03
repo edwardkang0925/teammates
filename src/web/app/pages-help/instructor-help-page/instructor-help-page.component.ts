@@ -53,7 +53,6 @@ export class InstructorHelpPageComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.scrollFinishEvent.subscribe(() => {
         this.expandQuestionTab();
-        console.log("hellop");
       }
     );
   }
@@ -69,7 +68,6 @@ export class InstructorHelpPageComponent implements OnInit, AfterViewInit {
   }
 
   expandQuestionTab(): void {
-    console.log("ExpandQuestion")
     if (this.section === Sections.students && this.studentsHelpSection) {
       this.studentsHelpSection.expand(this.questionIdToExpand);
     } else if (this.section === Sections.courses && this.coursesHelpSection) {
