@@ -32,7 +32,7 @@ export class InstructorHelpPageComponent implements OnInit, AfterViewInit {
   questionIdToExpand: string = '';
   section: string = '';
 
-  @ViewChild('helpPage') bodyRef ?: ElementRef;
+  @ViewChild('helpPage') bodyRef?: ElementRef;
   @ViewChild('studentsHelpSection') studentsHelpSection?: InstructorHelpStudentsSectionComponent;
   @ViewChild('coursesHelpSection') coursesHelpSection?: InstructorHelpCoursesSectionComponent;
   @ViewChild('sessionsHelpSection') sessionsHelpSection?: InstructorHelpSessionsSectionComponent;
@@ -51,7 +51,11 @@ export class InstructorHelpPageComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.scrollFinishEvent.subscribe(() => this.expandQuestionTab());
+    this.scrollFinishEvent.subscribe(() => {
+        this.expandQuestionTab();
+        console.log("hellop");
+      }
+    );
   }
 
   ngAfterViewInit(): void {
@@ -65,6 +69,7 @@ export class InstructorHelpPageComponent implements OnInit, AfterViewInit {
   }
 
   expandQuestionTab(): void {
+    console.log("ExpandQuestion")
     if (this.section === Sections.students && this.studentsHelpSection) {
       this.studentsHelpSection.expand(this.questionIdToExpand);
     } else if (this.section === Sections.courses && this.coursesHelpSection) {

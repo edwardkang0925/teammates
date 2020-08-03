@@ -58,7 +58,8 @@
   <tm-instructor-help-panel #question class="instr-help-qn-last" [hidden]="key && !showQuestion.includes(CoursesSectionQuestions.ENROLL_SECTIONS)"
                             [id]="CoursesSectionQuestions.ENROLL_SECTIONS"
                             headerText="How do I enroll students into sections?"
-                            [(isPanelExpanded)]="questionsToCollapsed[CoursesSectionQuestions.ENROLL_SECTIONS]">
+                            [(isPanelExpanded)]="questionsToCollapsed[CoursesSectionQuestions.ENROLL_SECTIONS]"
+                            tabindex="0">
     <p>
       To specify a section for each student at the time of enrollment, include a <b>Section</b> column in the spreadsheet and ensure it is copied over to the student data text box, together with the rest of the data.
       To view more information, go to the <b>Courses</b> page, click on the <button class="btn btn-secondary btn-sm" type="button" tabindex="-1">Enroll</button> button for any course and scroll down to the <b>More Info</b> section.
